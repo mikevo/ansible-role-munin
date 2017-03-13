@@ -1,0 +1,46 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.define "ansible-munin-host" do |node|
+    node.vm.box = "centos/7"
+    node.ssh.insert_key = false
+
+    node.vm.provider :virtualbox do |v|
+      v.name = "ansible-munin-host"
+      v.memory = 512
+      v.cpus = 2
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+    node.vm.hostname = "ansible-munin-host"
+    node.vm.network :private_network, ip: "192.168.137.8"
+  end
+  
+  config.vm.define "ansible-munin-node1" do |node|
+    node.vm.box = "centos/7"
+    node.ssh.insert_key = false
+
+    node.vm.provider :virtualbox do |v|
+      v.name = "ansible-munin-node1"
+      v.memory = 512
+      v.cpus = 2
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+    node.vm.hostname = "ansible-munin-node1"
+    node.vm.network :private_network, ip: "192.168.137.9"
+  end
+
+  # Ansible provisioner.
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "test.yml"
+    ansible.inventory_path = "inventory.yml"
+    ansible.sudo = true
+  end
+
+end

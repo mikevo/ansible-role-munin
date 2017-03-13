@@ -32,10 +32,53 @@
     password: "{{ munin_admin_password }}"
     path: /etc/munin/munin-htpasswd
     state: present
+  when: munin_htpasswd != "absent"
+  
+- name: Set apache config if necessary
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - src: apache_munin.conf.j2
+      dest: /etc/httpd/conf.d/munin.conf
+  notify: restart apache
+  when: munin_htpasswd != 'absent'
 
+- name: Remove apache config if necessary
+  file:
+    path: "{{ munin_apache_config }}"
+    state: "{{ munin_htpasswd }}"
+  notify: restart apache
+  when: munin_htpasswd == "absent"
+  
 - name: Enable or disable the munin cron job.
   lineinfile:
     dest: /etc/cron.d/munin
     state: "{{ munin_cron_job }}"
     regexp: "^\\*/5 \\* \\* \\* \\*"
     line: "*/5 * * * *     munin test -x /usr/bin/munin-cron && /usr/bin/munin-cron"
+    
+- name: Create dir for dynamic images
+  file:
+    path: "{{ munin_dbdir }}/cgi-tmp/munin-cgi-graph/"
+    state: directory
+    owner: apache
+    group: munin
+    setype: munin_script_tmp_t
+  when: ansible_os_family == 'RedHat'
+
+- name: Copy munin theme from munin contrib
+  synchronize:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    partial: yes
+    checksum: yes
+  with_items:
+    - src: contrib/templates/munstrap/static/
+      dest: "{{ munin_etc_dir }}/static/"
+    - src: contrib/templates/munstrap/templates/
+      dest: "{{ munin_etc_dir }}/templates/"
+  when: munin_contrib

@@ -1,0 +1,38 @@
+---
+- hosts: munin-nodes
+  vars:
+    munin_node_plugins:
+      - name: uptime
+      # - name: multiping
+      - name: meminfo
+      - name: if_eth1
+        plugin: if_
+
+    munin_node_config: {
+       "multiping": {
+         "env.host": "uibk.ac.at google.com famv.net"
+      },
+      "meminfo": {
+        "env.enabled_graphs": '(meminfo_\w+\.?|swapinfo)'
+      }
+    }
+    munin_node_allowed_ips:
+      - '^127\.0\.0\.1$'
+      - '^192\.168\.137\.8$'
+
+  roles:
+    - repo-epel
+    - munin-node
+
+- hosts: ansible-munin-host
+  vars:
+    munin_contrib: true
+    apache_vhosts:
+      - servername: "local.dev"
+        documentroot: "/var/www/html/munin"
+        extra_parameters: |
+          ScriptAlias /munin-cgi/munin-cgi-graph /var/www/cgi-bin/munin-cgi-graph
+  roles: 
+    - repo-epel
+    - apache
+    - munin
