@@ -1,7 +1,8 @@
 # Munin hosts.
 {% for host in groups['munin-nodes'] %}
-[{{hostvars[host]['inventory_hostname']}}]
-    address {{hostvars[host]['ansible_ssh_host']}}
+[{{hostvars[host]['munin_group']}};{{ host }}]
+    address {{lookup('dig', host)}}
+    use_node_name no
 {% if host.extra is defined %}
 {% for extra in host.extra %}
     {{ extra }}

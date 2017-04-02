@@ -76,9 +76,22 @@
     dest: "{{ item.dest }}"
     partial: yes
     checksum: yes
+    owner: no
+    group: no
   with_items:
     - src: contrib/templates/munstrap/static/
       dest: "{{ munin_etc_dir }}/static/"
     - src: contrib/templates/munstrap/templates/
       dest: "{{ munin_etc_dir }}/templates/"
+  when: munin_contrib
+  
+- name: Set owner and group of contrib theme
+  file:
+    path: "{{ item }}"
+    owner: munin
+    group: munin
+    recurse: yes
+  with_items:
+    - "{{ munin_etc_dir }}/static/"
+    - "{{ munin_etc_dir }}/templates/"
   when: munin_contrib

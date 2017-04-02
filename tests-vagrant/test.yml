@@ -1,4 +1,16 @@
 ---
+- hosts: all
+  tasks:  
+    - name: Install firewalld
+      package:
+        pkg: firewalld
+        state: installed
+    - name: enable firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
+
 - hosts: munin-nodes
   vars:
     munin_node_plugins:
@@ -19,7 +31,6 @@
     munin_node_allowed_ips:
       - '^127\.0\.0\.1$'
       - '^192\.168\.137\.8$'
-
   roles:
     - repo-epel
     - munin-node
