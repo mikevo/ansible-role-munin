@@ -1,11 +1,11 @@
 # Munin hosts.
 {% for host in groups['munin-nodes'] %}
 [{{hostvars[host]['munin_group']}};{{ host }}]
-    address {{lookup('dig', host)}}
-    use_node_name no
-{% if host.extra is defined %}
-{% for extra in host.extra %}
-    {{ extra }}
+  address {{lookup('dig', host)}}
+  use_node_name no
+{% if hostvars[host]['munin_node_extras'] is defined %}
+{% for extra in hostvars[host]['munin_node_extras'] %}
+  {{ extra }}
 {% endfor %}
 {% endif %}
 
