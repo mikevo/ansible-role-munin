@@ -32,7 +32,7 @@
       - '^127\.0\.0\.1$'
       - '^192\.168\.137\.8$'
   roles:
-    - repo-epel
+    - geerlingguy.repo-epel
     - munin-node
 
 - hosts: ansible-munin-host
@@ -44,6 +44,6 @@
         extra_parameters: |
           ScriptAlias /munin-cgi/munin-cgi-graph /var/www/cgi-bin/munin-cgi-graph
   roles: 
-    - repo-epel
+    - geerlingguy.repo-epel
     - apache
     - munin
