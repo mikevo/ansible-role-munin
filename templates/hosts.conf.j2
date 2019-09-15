@@ -1,5 +1,5 @@
 # Munin hosts.
-{% for host in groups['munin-nodes'] %}
+{% for host in groups['munin_nodes'] %}
 [{{hostvars[host]['munin_group']}};{{ host }}]
   address {{lookup('dig', host)}}
   use_node_name no
